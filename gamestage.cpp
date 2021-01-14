@@ -4,6 +4,7 @@
 
 #include <QDebug>
 
+#include "a_start.h"
 #include "wall.h"
 #include "snake.h"
 #include "food.h"
@@ -23,6 +24,27 @@ GameStage::GameStage(QGraphicsScene *screne, QObject *object)
                      &QTimer::timeout,
                      screne_,
                      &QGraphicsScene::advance);
+}
+
+void GameStage::calcPath() {
+    SquareGrid grid{ 200, 200 };
+    Heuristic heuristic;
+
+    std::unordered_map<GridLocation, GridLocation> came_from;
+    std::unordered_map<GridLocation, double> cost_so_far;
+
+    auto start = GridLocation{
+    	static_cast<int>(snake_->pos().x()),
+        static_cast<int>(snake_->pos().y()),
+    };
+
+    auto goal = GridLocation{
+        static_cast<int>(food_->pos().x()),
+        static_cast<int>(food_->pos().y()),
+    };
+	
+    astart(grid, start, goal, came_from, cost_so_far, heuristic);
+    auto path = reconstructPath(start, goal, came_from);
 }
 
 void GameStage::addWall() {
@@ -57,8 +79,8 @@ void GameStage::addFood() {
     auto snake_shape = snake_->shape();
 
     do {
-        x = (int)(qrand() % 200) / 10 - 10;
-        y = (int)(qrand() % 200) / 10 - 10;
+        x = static_cast<int>(qrand() % 200) / 10 - 10;
+        y = static_cast<int>(qrand() % 200) / 10 - 10;
         x *= 10;
         y *= 10;
     } while (snake_shape.contains(snake_->mapFromScene(QPointF(x + 5, y + 5))));
@@ -71,7 +93,7 @@ void GameStage::addFood() {
 
 bool GameStage::eventFilter(QObject *object, QEvent *event) {
     if (event->type() == QEvent::KeyPress) {
-        auto key_event = (QKeyEvent *)event;
+        auto* key_event = static_cast<QKeyEvent*>(event);
 
         switch (key_event->key()) {
         case Qt::Key_Left:
@@ -90,13 +112,15 @@ bool GameStage::eventFilter(QObject *object, QEvent *event) {
             break;
         }
 
+        calcPath();
+
         return true;
     } else {
         return QObject::eventFilter(object, event);
     }
 }
 
-int32_t GameStage::collision(Snake const *item, QPointF const &target) {
+int32_t GameStage::collision(Snake const *item, QPointF const &target) const {
     if (item->tail().contains(target)) {
         snake_->setPause();
         QTimer::singleShot(0, this, SLOT(gameOver()));
@@ -104,13 +128,13 @@ int32_t GameStage::collision(Snake const *item, QPointF const &target) {
     }
 
     auto growing = 0;
-    foreach (auto collidingItem, item->collidingItems()) {
-        switch ((GameObjectValue)collidingItem->data((int)GameObjectType::Object).toInt()) {
+    foreach (auto * colliding_item, item->collidingItems()) {
+        switch (static_cast<GameObjectValue>(colliding_item->data(static_cast<int>(GameObjectType::Object)).toInt())) {
         case GameObjectValue::Food:
-            screne_->removeItem(collidingItem);
+            screne_->removeItem(colliding_item);
             QTimer::singleShot(0, this, SLOT(addFood()));
             growing += 30;
-            qDebug() << "eat food " << collidingItem->x() << "," << collidingItem->y();
+            qDebug() << "eat food " << colliding_item->x() << "," << colliding_item->y();
             break;
         case GameObjectValue::Wall:
             snake_->setPause();

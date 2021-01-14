@@ -25,11 +25,13 @@ class GameStage : public QObject {
 public:
     explicit GameStage(QGraphicsScene* screen, QObject *object);
 
-    int32_t collision(Snake const *item, QPointF const &target);
+    int32_t collision(Snake const *item, QPointF const &target) const;
 
     bool eventFilter(QObject *object, QEvent *event) override;
 
     void reset();
+
+    void calcPath();
 
 Q_SIGNALS:
     void gameOver();
@@ -38,7 +40,7 @@ public slots:
     void addFood();
 
 private:
-    void addWall();
+    void addWall();   
 
     QGraphicsScene* screne_;
     Snake* snake_;

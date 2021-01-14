@@ -70,7 +70,7 @@ QPainterPath Snake::shape() const {
     path.addRect(QRectF(0, 0, SNAKE_SIZE, SNAKE_SIZE));
 
     for (auto p : tail_) {
-        QPointF itemp = mapFromScene(p);
+        auto itemp = mapFromScene(p);
         path.addRect(QRectF(itemp.x(), itemp.y(), SNAKE_SIZE, SNAKE_SIZE));
     }
     return path;

@@ -17,11 +17,6 @@ MainWindow::MainWindow(QWidget *parent)
     setFixedSize(600, 600);
     setWindowTitle("QSnake");
 
-    //QPixmap bg(SNAKE_SIZE, SNAKE_SIZE);
-    //QPainter p(&bg);
-    //p.setBrush(QBrush(Qt::gray));
-    //p.drawRect(0, 0, SNAKE_SIZE, SNAKE_SIZE);
-    //view_->setBackgroundBrush(QBrush(bg));
     view_->setBackgroundBrush(QBrush(Qt::black));
     view_->viewport()->setFocusProxy(nullptr);
 
