@@ -134,7 +134,7 @@ std::vector<Location> reconstructPath(Location const& start, Location const& goa
 }
 
 template <typename Location, typename Graph, typename Heuristic>
-void astart(Graph const& graph,
+std::vector<Location> Search(Graph const& graph,
     Location const& start,
     Location const& goal,
     std::unordered_map<Location, Location> & came_from,
@@ -165,4 +165,6 @@ void astart(Graph const& graph,
             }
         }
     }
+
+    return reconstructPath(start, goal, came_from);
 }

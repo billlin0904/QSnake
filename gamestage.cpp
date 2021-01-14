@@ -14,7 +14,7 @@ GameStage::GameStage(QGraphicsScene *screne, QObject *object)
     : QObject(object)
     , screne_(screne)
     , snake_(new Snake(this)) {
-    food_ = new Food(QPointF(0, -50));
+    addFood();
     screne_->addItem(food_);
     screne_->addItem(snake_);
     screne_->installEventFilter(this);
@@ -43,8 +43,7 @@ void GameStage::calcPath() {
         static_cast<int>(food_->pos().y()),
     };
 	
-    astart(grid, start, goal, came_from, cost_so_far, heuristic);
-    auto path = reconstructPath(start, goal, came_from);
+    auto path = Search(grid, start, goal, came_from, cost_so_far, heuristic);
 }
 
 void GameStage::addWall() {
