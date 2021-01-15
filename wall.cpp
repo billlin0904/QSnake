@@ -10,8 +10,8 @@ Wall::Wall(QPointF const &pt) {
 }
 
 QRectF Wall::boundingRect() const {
-    return QRectF(-SNAKE_SIZE,    -SNAKE_SIZE,
-                  SNAKE_SIZE * 2, SNAKE_SIZE * 2 );
+    return QRectF(-kSnakeSize,    -kSnakeSize,
+                  kSnakeSize * 2, kSnakeSize * 2 );
 }
 
 void Wall::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *) {
@@ -22,6 +22,6 @@ void Wall::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 QPainterPath Wall::shape() const {
     QPainterPath path;
     path.setFillRule(Qt::WindingFill);
-    path.addRect(QRectF(0, 0, SNAKE_SIZE, SNAKE_SIZE));
+    path.addRect(QRectF(0, 0, kSnakeSize, kSnakeSize));
     return path;
 }

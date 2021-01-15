@@ -6,7 +6,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsItem>
 
-static constexpr auto SNAKE_SIZE = 15;
+static constexpr auto kSnakeSize = 15;
 
 enum class GameObjectType {
     Object,
@@ -15,36 +15,39 @@ enum class GameObjectType {
 enum class GameObjectValue {
     Food,
     Wall,
+	Path,
 };
 
 class Snake;
 class Food;
+class Path;
 
 class GameStage : public QObject {
     Q_OBJECT
 public:
-    explicit GameStage(QGraphicsScene* screen, QObject *object);
-
-    int32_t collision(Snake const *item, QPointF const &target) const;
-
-    bool eventFilter(QObject *object, QEvent *event) override;
-
+    explicit GameStage(QGraphicsScene* scene, QObject *object);
+	
     void reset();
 
-    void calcPath();
+    void searchPath();
 
-Q_SIGNALS:
+    int32_t collision(Snake const* item, QPointF const& target);
+
+    bool eventFilter(QObject* object, QEvent* event) override;
+
+signals:
     void gameOver();
 
 public slots:
     void addFood();
 
-private:
+private:    
     void addWall();   
-
-    QGraphicsScene* screne_;
+    
+    QGraphicsScene* scene_;
     Snake* snake_;
     Food* food_;
     QTimer timer_;
+    std::vector<Path*> paths_;
 };
 

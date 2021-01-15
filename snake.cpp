@@ -25,7 +25,7 @@ Direction Snake::direction() const noexcept {
     return dir_;
 }
 
-void Snake::setDirection(Direction dir) noexcept {
+void Snake::setDirection(const Direction dir) noexcept {
     if (dir_ == Direction::MoveLeft && dir == Direction::MoveRight) {
         return;
     }
@@ -42,36 +42,36 @@ void Snake::setDirection(Direction dir) noexcept {
 }
 
 QRectF Snake::boundingRect() const {
-    auto minX = head_.x();
-    auto minY = head_.y();
-    auto maxX = head_.x();
-    auto maxY = head_.y();
+    auto min_x = head_.x();
+    auto min_y = head_.y();
+    auto max_x = head_.x();
+    auto max_y = head_.y();
 
     for (auto p : tail_) {
-        maxX = p.x() > maxX ? p.x() : maxX;
-        maxY = p.y() > maxY ? p.y() : maxY;
-        minX = p.x() < minX ? p.x() : minX;
-        minY = p.y() < minY ? p.y() : minY;
+        max_x = p.x() > max_x ? p.x() : max_x;
+        max_y = p.y() > max_y ? p.y() : max_y;
+        min_x = p.x() < min_x ? p.x() : min_x;
+        min_y = p.y() < min_y ? p.y() : min_y;
     }
 
-    const auto tl = mapFromScene(QPointF(minX, minY));
-    const auto br = mapFromScene(QPointF(maxX, maxY));
+    const auto tl = mapFromScene(QPointF(min_x, min_y));
+    const auto br = mapFromScene(QPointF(max_x, max_y));
 
     return QRectF(tl.x(),
                  tl.y(),
-                 br.x() - tl.x() + SNAKE_SIZE,
-                 br.y() - tl.y() + SNAKE_SIZE);
+                 br.x() - tl.x() + kSnakeSize,
+                 br.y() - tl.y() + kSnakeSize);
 }
 
 QPainterPath Snake::shape() const {
     QPainterPath path;
 
     path.setFillRule(Qt::WindingFill);
-    path.addRect(QRectF(0, 0, SNAKE_SIZE, SNAKE_SIZE));
+    path.addRect(QRectF(0, 0, kSnakeSize, kSnakeSize));
 
     for (auto p : tail_) {
-        auto itemp = mapFromScene(p);
-        path.addRect(QRectF(itemp.x(), itemp.y(), SNAKE_SIZE, SNAKE_SIZE));
+        auto scene_pos = mapFromScene(p);
+        path.addRect(QRectF(scene_pos.x(), scene_pos.y(), kSnakeSize, kSnakeSize));
     }
     return path;
 }
@@ -125,24 +125,24 @@ void Snake::advance(int step) {
 
 QPointF Snake::moveLeft() {
     QPointF targe = head_;
-    targe.rx() -= 2;
+    targe.rx() -= speed_;
     return targe;
 }
 
 QPointF Snake::moveRight() {
     QPointF targe = head_;
-    targe.rx() += 2;
+    targe.rx() += speed_;
     return targe;
 }
 
 QPointF Snake::moveUp() {
     QPointF targe = head_;
-    targe.ry() -= 2;
+    targe.ry() -= speed_;
     return targe;
 }
 
 QPointF Snake::moveDown() {
     QPointF targe = head_;
-    targe.ry() += 2;
+    targe.ry() += speed_;
     return targe;
 }
