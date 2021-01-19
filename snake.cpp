@@ -124,25 +124,25 @@ void Snake::advance(int step) {
 }
 
 QPointF Snake::moveLeft() {
-    QPointF targe = head_;
+    auto targe = head_;
     targe.rx() -= speed_;
     return targe;
 }
 
 QPointF Snake::moveRight() {
-    QPointF targe = head_;
+    auto targe = head_;
     targe.rx() += speed_;
     return targe;
 }
 
 QPointF Snake::moveUp() {
-    QPointF targe = head_;
+	auto targe = head_;
     targe.ry() -= speed_;
     return targe;
 }
 
 QPointF Snake::moveDown() {
-    QPointF targe = head_;
+    auto targe = head_;
     targe.ry() += speed_;
     return targe;
 }

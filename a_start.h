@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <array>
+#include <iso646.h>
 #include <queue>
 
 struct GridLocation {    
@@ -26,8 +27,22 @@ struct GridLocation {
 		return (lhs.x() < rhs.x()) || ((lhs.x() == rhs.x()) && (lhs.y() < rhs.y()));
     }
 
-    int x_;
-    int y_;
+    int x_{ 0 };
+    int y_{ 0 };
+};
+
+struct GridRect {
+	[[nodiscard]] bool contains(GridLocation const &location) const noexcept {
+        if (location.x() > x1_ and location.x() < x2_ and location.y() > y1_ and location.y() < y2_) {
+            return true;
+        }
+        return false;
+    }
+	
+    int x1_{ 0 };
+    int y1_{ 0 };
+    int x2_{ 0 };
+    int y2_{ 0 };
 };
 
 namespace std {
@@ -87,14 +102,6 @@ public:
 
     [[nodiscard]] double cost(T const& from_node, T const& to_node) const {
         return forests_.find(to_node) != forests_.end() ? 5 : 1;
-    }
-
-    void clearForests() {
-        forests_.clear();
-    }
-	
-	void addForests(T const& node) {
-        forests_.insert(node);
     }
 
     void clearWalls() {
