@@ -11,12 +11,14 @@
 #include "path.h"
 #include "gamestage.h"
 
+#include <random>
+
 GameStage::GameStage(QGraphicsScene * scene, QObject *object)
     : QObject(object)
     , scene_(scene) {
     reset();
     scene_->installEventFilter(this);
-    timer_.start(1000 / 33);
+    timer_.start(33);
     QObject::connect(&timer_,
                      &QTimer::timeout,
                      scene_,
@@ -119,6 +121,7 @@ void GameStage::addFood() {
         x *= 10;
         y *= 10;
     } while (snake_shape.contains(snake_->mapFromScene(QPointF(x + kSnakeSize, y + kSnakeSize))));
+
 
     qDebug() << "Add food " << x << "," << y;
 

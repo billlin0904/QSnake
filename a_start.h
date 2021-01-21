@@ -150,6 +150,7 @@ namespace AStart {
         Location const& goal,
         std::unordered_map<Location, Location>& came_from) {
         std::vector<Location> path;
+        path.reserve(1000);
         auto current = goal;
         while (current != start) {
             path.push_back(current);
