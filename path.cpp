@@ -4,7 +4,8 @@
 #include "food.h"
 #include "path.h"
 
-Path::Path(QPointF const& pt) {
+Path::Path(QPointF const& pt, int index)
+	: index_(index) {
     setPos(pt);
     setData(static_cast<int>(GameObjectType::Object), static_cast<int>(GameObjectValue::Path));
 }
@@ -15,8 +16,10 @@ QRectF Path::boundingRect() const {
 }
 
 void Path::paint(QPainter* painter, const QStyleOptionGraphicsItem*, QWidget*) {
-    painter->setRenderHint(QPainter::Antialiasing);
-    painter->fillPath(shape(), Qt::cyan);
+    QColor color = Qt::white;
+    color.setAlpha(20);
+    painter->setRenderHint(QPainter::Antialiasing);    
+    painter->fillPath(shape(), color);
 }
 
 QPainterPath Path::shape() const {

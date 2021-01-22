@@ -3,7 +3,6 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <array>
-#include <iso646.h>
 #include <queue>
 
 struct GridLocation {    
@@ -33,7 +32,7 @@ struct GridLocation {
 
 struct GridRect {
 	[[nodiscard]] bool contains(GridLocation const &location) const noexcept {
-        if (location.x() > x1_ and location.x() < x2_ and location.y() > y1_ and location.y() < y2_) {
+        if (location.x() > x1_ && location.x() < x2_ && location.y() > y1_ && location.y() < y2_) {
             return true;
         }
         return false;
@@ -120,9 +119,7 @@ private:
 
 template <typename T, typename Priority>
 struct PriorityQueue {
-    typedef std::pair<Priority, T> PqElement;
-    std::priority_queue<PqElement, std::vector<PqElement>, std::greater<>> elements;
-
+public:
     [[nodiscard]] bool empty() const {
         return elements.empty();
     }
@@ -136,6 +133,9 @@ struct PriorityQueue {
         elements.pop();
         return best_item;
     }
+private:
+    typedef std::pair<Priority, T> PqElement;
+    std::priority_queue<PqElement, std::vector<PqElement>, std::greater<>> elements;
 };
 
 struct ManhattanDistance final {
@@ -193,7 +193,7 @@ namespace AStart {
                 if (cost_so_far.find(next) == cost_so_far.end()
                     || new_cost < cost_so_far[next]) {
                     cost_so_far[next] = new_cost;
-                    double priority = new_cost + heuristic(next, goal);
+                    auto priority = new_cost + heuristic(next, goal);
                     frontier.put(next, priority);
                     came_from[next] = current;
                 }

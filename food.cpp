@@ -1,11 +1,27 @@
 #include <QPainter>
+#include <QGraphicsOpacityEffect>
 
 #include "gamestage.h"
 #include "food.h"
 
 Food::Food(QPointF const &pt) {
     setPos(pt);
-    setData((int)GameObjectType::Object, (int)GameObjectValue::Food);
+    setData(static_cast<int>(GameObjectType::Object), static_cast<int>(GameObjectValue::Food));
+    animation_ = new QPropertyAnimation(this, "opacity");
+    animation_->setDuration(200);
+    animation_->setStartValue(0.3);
+    animation_->setEndValue(1.0);
+    animation_->setLoopCount(-1);
+    animation_->start();    
+}
+
+qreal Food::opacity() const {
+    return opacity_;
+}
+
+void Food::setOpacity(qreal value) {
+    opacity_ = value;
+    update();
 }
 
 QRectF Food::boundingRect() const {
@@ -15,7 +31,9 @@ QRectF Food::boundingRect() const {
 
 void Food::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *) {
     painter->setRenderHint(QPainter::Antialiasing);
-    painter->fillPath(shape(), Qt::red);
+    painter->setOpacity(opacity());
+    painter->setBrush(Qt::red);
+    painter->drawEllipse(QRectF(0, 0, kSnakeSize, kSnakeSize));
 }
 
 QPainterPath Food::shape() const {

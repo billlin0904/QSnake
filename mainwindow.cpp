@@ -38,6 +38,7 @@ void MainWindow::onGameOver() {
 }
 
 MainWindow::~MainWindow() {
+    stage_->clear();
     delete ui;
 }
 

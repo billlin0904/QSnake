@@ -1,7 +1,8 @@
+#include <random>
+
 #include <QGraphicsItem>
 #include <QEvent>
 #include <QKeyEvent>
-
 #include <QDebug>
 
 #include "a_start.h"
@@ -11,7 +12,28 @@
 #include "path.h"
 #include "gamestage.h"
 
-#include <random>
+static GridLocation toLocation(QPointF const& p) {
+    return {
+        static_cast<int>(p.x()),
+        static_cast<int>(p.y()),
+    };
+}
+
+static GridRect fromQRectF(QRectF const& r) {
+    return {
+        static_cast<int>(r.left()),
+        static_cast<int>(r.top()),
+        static_cast<int>(r.right()),
+        static_cast<int>(r.bottom()),
+    };
+}
+
+static QPointF toPoint(GridLocation const& p) {
+    return QPointF{
+        static_cast<qreal>(p.x()),
+        static_cast<qreal>(p.y()),
+    };
+}
 
 GameStage::GameStage(QGraphicsScene * scene, QObject *object)
     : QObject(object)
@@ -26,27 +48,21 @@ GameStage::GameStage(QGraphicsScene * scene, QObject *object)
     searchPath();
 }
 
-static GridLocation toLocation(QPointF const &p) {
-    return {
-        static_cast<int>(p.x()),
-        static_cast<int>(p.y()),
-    };
+void GameStage::clear() {
+    removePath();
+	if (snake_ != nullptr) {
+        scene_->removeItem(snake_);
+	}
+    if (food_ != nullptr) {
+        scene_->removeItem(food_);
+    }    
 }
 
-static GridRect fromQRectF(QRectF const &r) {
-    return {
-        static_cast<int>(r.left()),
-        static_cast<int>(r.top()),
-        static_cast<int>(r.right()),
-        static_cast<int>(r.bottom()),
-    };
-}
-
-static QPointF toPoint(GridLocation const& p) {
-    return QPointF{
-        static_cast<qreal>(p.x()),
-        static_cast<qreal>(p.y()),
-    };
+void GameStage::removePath() {
+    for (auto& path_obj : paths_) {
+        scene_->removeItem(path_obj.get());
+    }
+    paths_.clear();
 }
 
 void GameStage::searchPath() {
@@ -68,18 +84,15 @@ void GameStage::searchPath() {
         cost_so_far,
         heuristic);
     
-	for (auto* path_obj : paths_) {
-        scene_->removeItem(path_obj);
-	}
-    paths_.clear();
+    removePath();
 
     auto i = 0;
 
 	for (auto path : result) {
 		if (i++ % kSnakeSize == 0) {
-            auto* path_obj = new Path(toPoint(path));
-            scene_->addItem(path_obj);
-            paths_.push_back(path_obj);
+            auto path_obj = std::make_unique<Path>(toPoint(path), i);
+            scene_->addItem(path_obj.get());
+            paths_.push_back(std::move(path_obj));
 		}
 	}
 }
@@ -102,8 +115,9 @@ void GameStage::addWall() {
 }
 
 void GameStage::reset() {
-    scene_->clear();
-    snake_ = new Snake(this);
+    clear();
+    scene_->clear();    
+    snake_=new Snake(this);
     scene_->addItem(snake_);
     addFood();
     addWall();
@@ -115,25 +129,24 @@ void GameStage::addFood() {
 
     const auto snake_shape = snake_->shape();
 
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<> dis(-1.0, 1.0);
+	
     do {
-        x = static_cast<int>(qrand() % 200) / 10 - 10;
-        y = static_cast<int>(qrand() % 200) / 10 - 10;
-        x *= 10;
-        y *= 10;
+        x = static_cast<int>(dis(gen) * 300);
+        y = static_cast<int>(dis(gen) * 300);
     } while (snake_shape.contains(snake_->mapFromScene(QPointF(x + kSnakeSize, y + kSnakeSize))));
 
-
     qDebug() << "Add food " << x << "," << y;
-
-    food_ = new Food(QPointF(x, y));    
 	
+    food_ = new Food(QPointF(x, y));	
     scene_->addItem(food_);
 }
 
 bool GameStage::eventFilter(QObject *object, QEvent *event) {
     if (event->type() == QEvent::KeyPress) {
         auto* key_event = dynamic_cast<QKeyEvent*>(event);
-
         switch (key_event->key()) {
         case Qt::Key_Left:
             snake_->setDirection(Direction::MoveLeft);
@@ -152,6 +165,7 @@ bool GameStage::eventFilter(QObject *object, QEvent *event) {
             searchPath();
             break;
         case Qt::Key_Space:
+            snake_->setPause(false);
             break;
         default:
             return QObject::eventFilter(object, event);
@@ -175,8 +189,9 @@ int32_t GameStage::collision(Snake const *item, QPointF const &target) {
         case GameObjectValue::Food:
             scene_->removeItem(colliding_item);
             QTimer::singleShot(0, this, SLOT(addFood()));
-            growing += 30;
-            qDebug() << "eat food " << colliding_item->x() << "," << colliding_item->y();            
+            growing += 30;            
+            searchPath();
+            //snake_->setPause();
             break;
         case GameObjectValue::Wall:
             snake_->setPause();
@@ -185,8 +200,6 @@ int32_t GameStage::collision(Snake const *item, QPointF const &target) {
             return 0;
         }
     }
-
-    searchPath();
-	
+    //searchPath();	
     return growing;
 }

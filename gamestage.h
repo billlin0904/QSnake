@@ -2,9 +2,12 @@
 
 #include <cstdint>
 #include <QTimer>
+#include <memory>
 
 #include <QGraphicsScene>
 #include <QGraphicsItem>
+#include <QGraphicsItemAnimation>
+#include <QTimeLine>
 
 static constexpr auto kSnakeSize = 15;
 
@@ -26,8 +29,10 @@ class GameStage : public QObject {
     Q_OBJECT
 public:
     explicit GameStage(QGraphicsScene* scene, QObject *object);
-	
+
     void reset();
+
+    void clear();
 
     void searchPath();
 
@@ -42,12 +47,14 @@ public slots:
     void addFood();
 
 private:    
-    void addWall();   
+    void addWall();
+
+    void removePath();
     
-    QGraphicsScene* scene_;
-    Snake* snake_;
-    Food* food_;
+    QGraphicsScene* scene_{nullptr};
+    Snake* snake_{ nullptr };
+    Food* food_{ nullptr };
     QTimer timer_;
-    std::vector<Path*> paths_;
+    std::vector<std::unique_ptr<Path>> paths_;
 };
 

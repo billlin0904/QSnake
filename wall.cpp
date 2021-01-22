@@ -6,7 +6,7 @@
 
 Wall::Wall(QPointF const &pt) {
     setPos(pt);
-    setData((int)GameObjectType::Object, (int)GameObjectValue::Wall);
+    setData(static_cast<int>(GameObjectType::Object), static_cast<int>(GameObjectValue::Wall));
 }
 
 QRectF Wall::boundingRect() const {
@@ -17,6 +17,7 @@ QRectF Wall::boundingRect() const {
 void Wall::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *) {
     painter->setRenderHint(QPainter::Antialiasing);
     painter->fillPath(shape(), Qt::gray);
+    painter->drawRect(boundingRect());
 }
 
 QPainterPath Wall::shape() const {

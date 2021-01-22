@@ -47,7 +47,7 @@ private:
     QPointF moveDown();
 
     bool is_pause_{false};
-    int speed_{ 1 };
+    int speed_{ 2 };
     Direction dir_;
     int32_t growing_;
     GameStage* stage_;
